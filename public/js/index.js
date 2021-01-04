@@ -10,7 +10,7 @@ import { bookTour } from './stripe';
 const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
 const signupForm = document.querySelector('.form--signup');
-console.log('entered  main index');
+//console.log('entered  main index');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password'); 
@@ -37,7 +37,7 @@ loginForm.addEventListener('submit', e => {
 if(signupForm){
   signupForm.addEventListener('submit', e => {
     e.preventDefault(); 
-    console.log('entered index');
+    //console.log('entered index');
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -54,7 +54,7 @@ if (userDataForm)
     form.append('name', document.getElementById('name').value);
     form.append('email', document.getElementById('email').value);
     form.append('photo', document.getElementById('photo').files[0]);
-    console.log(form);
+    //.log(form);
 
     updateSettings(form, 'data');
   });
