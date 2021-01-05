@@ -9,7 +9,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
-const compression = require('compression')
+const compression = require('compression');
 const cors = require('cors');
 
 const globalErrorHandler = require('./controllers/errorController');
@@ -18,7 +18,8 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes.js');
 const viewRouter = require('./routes/viewRoutes');
-const bookingRouter = require('./routes/bookingRoutes')
+const bookingRouter = require('./routes/bookingRoutes');
+const bookingController = require('./controllers/bookingController');
 //for setting pug template engine
 app.enable('trust proxy');
 app.set('view engine', 'pug');
@@ -26,12 +27,18 @@ app.set('views', path.join(__dirname, 'views'));
 
 //for cors
 app.use(cors());
-app.options('*',cors());
+app.options('*', cors());
 //for serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 //set security http headers
 app.use(helmet());
+
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout
+);
 
 //for embedding body object to req object
 app.use(express.json({ limit: '10kb' }));
