@@ -12,18 +12,18 @@ const signToken = (id) => {
   });
 };
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
-  const cookieOptions = {
+
+  res.cookie('jwt', token, {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-  };
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+  });
 
-  if (process.env.NODE_ENV === 'production') cookieOptions.security = true;
-  res.cookie('jwt', token, cookieOptions);
-
+  // Remove password from output
   user.password = undefined;
 
   res.status(statusCode).json({
@@ -34,6 +34,7 @@ const createSendToken = (user, statusCode, res) => {
     },
   });
 };
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -52,8 +53,8 @@ exports.signup = catchAsync(async (req, res, next) => {
       newUser,
     },
   });
- 
- //createSendToken(newUser, 201, res);
+
+  //createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -72,7 +73,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
   //3)if everything okay send token to client
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.logout = (req, res) => {
@@ -119,7 +120,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   req.user = currentUser;
   res.locals.user = currentUser;
-
 
   next();
 });
@@ -227,11 +227,11 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  console.log(req.body)
+  console.log(req.body);
   console.log('entered');
   //1)Get user from collection
   const user = await User.findById(req.user._id).select('+password');
@@ -250,5 +250,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   console.log('entered3');
 
   //log user in
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
